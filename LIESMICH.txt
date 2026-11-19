@@ -1,0 +1,27 @@
+PoE Companion 1.2 (Beta)
+=================
+
+Starten: PoE-Companion.exe aus der GitHub-Release herunterladen und doppelklicken (kein Python noetig).
+Aus dem Quelltext: Doppelklick auf "PoE Companion starten.bat" (braucht Python 3).
+Es oeffnet sich der Hub (Uebersicht, Skilltree, Leveling, Item-Check, Map-Check, Profile).
+
+Tasten (in Einstellungen aenderbar):
+  F8   Overlays ein/aus (Item-Popup und Skilltree-Overlay)
+  F9   Hub oeffnen
+  F10  Skilltree-Overlay ein/aus
+  Strg+C auf ein Item oder eine Map im Spiel -> Popup mit Vergleich
+
+Fuer Freunde:
+  1. Ganzen Ordner kopieren (ohne den Unterordner "data", da liegen deine Profile).
+  2. Python 3 installieren (python.org, Haken bei "Add to PATH").
+  3. Path of Building Community installieren (pathofbuilding.community).
+  4. "PoE Companion starten.bat" -> Profile & Freunde -> Account#1234 eintragen,
+     "Charaktere laden", Charakter waehlen, optional pobb.in-Guide eintragen.
+  Fehlt der Ordner PathOfBuilding-2.67.2, laedt der Companion ihn beim ersten Start
+  automatisch (ca. 650 MB, einmalig).
+
+Wichtig:
+  - Spiel im Modus "Windowed Fullscreen", sonst liegen die Overlays dahinter.
+  - Spielsprache Englisch (PoB versteht nur englische Itemtexte).
+  - PoE-Profil muss oeffentlich sein (Privacy Settings).
+  - Bitte das alte Overlay (overlay.py) vorher schliessen, sonst ist F8 doppelt belegt.

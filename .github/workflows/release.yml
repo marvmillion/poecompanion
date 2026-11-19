@@ -1,0 +1,50 @@
+name: Release (Windows .exe)
+
+# Startet, wenn ein Tag wie v1.2.0 hochgeladen wird – oder per Hand unter "Actions".
+on:
+  push:
+    tags: ['v*']
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Repository fuer Updates eintragen
+        shell: pwsh
+        run: |
+          (Get-Content app_info.py) -replace "^REPO = ''", "REPO = '${{ github.repository }}'" | Set-Content app_info.py -Encoding utf8
+
+      - name: PyInstaller
+        run: python -m pip install pyinstaller==6.11.1
+
+      - name: Exe bauen
+        run: >
+          pyinstaller --noconfirm --onefile --windowed --name PoE-Companion --icon ui/icon.ico
+          --add-data "ui;ui" --add-data "guide2pob;guide2pob"
+          --add-data "LIZENZEN.txt;." --add-data "LIZENZ-AGPL-3.0.txt;." --add-data "DATENSCHUTZ.md;."
+          --exclude-module selbsttest2 --exclude-module tkinter
+          poe_app.py
+
+      - name: Release anlegen
+        if: startsWith(github.ref, 'refs/tags/')
+        uses: softprops/action-gh-release@v2
+        with:
+          files: dist/PoE-Companion.exe
+          generate_release_notes: true
+
+      - name: Exe als Download (ohne Tag)
+        if: ${{ !startsWith(github.ref, 'refs/tags/') }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: PoE-Companion
+          path: dist/PoE-Companion.exe

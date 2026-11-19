@@ -1,0 +1,21 @@
+PoE Companion – verwendete Daten und Lizenzen
+==============================================
+
+Dieses Programm wird unter der GNU Affero General Public License v3.0 (AGPL-3.0) weitergegeben,
+weil der Crafting-Berater Daten aus einem AGPL-Projekt enthält. Der vollständige Lizenztext steht in
+LIZENZ-AGPL-3.0.txt. Wer den Companion weitergibt, gibt den Quelltext (alle .py-, .js- und .html-Dateien
+in diesem Ordner) mit und lässt diesen Hinweis drin.
+
+- Mod-Gewichte, Essenzen und Omen für PoE 2 (ui/data/craft_poe2.json):
+  POE2_HTC von Dboire9, AGPL-3.0 – https://github.com/Dboire9/POE2_HTC
+  (Werte ursprünglich von poe2db.tw, von der Community geschätzt, keine offiziellen Zahlen)
+- PoE-2-Basen: RePoE (repoe-fork/poe2) – https://github.com/repoe-fork/poe2
+- PoE-2-Kampagnenroute (ui/data/campaign_poe2.js): poe2overlay von Michael Malura, MIT-Lizenz –
+  https://github.com/maluramichael/poe2overlay
+- PoE-1-Kampagnenroute (ui/data/campaign.js): exile-leveling von HeartofPhos, MIT-Lizenz –
+  https://github.com/HeartofPhos/exile-leveling
+- Berechnungen: Path of Building Community (PoE 1 und PoE 2), MIT-Lizenz –
+  https://github.com/PathOfBuildingCommunity
+- Spieldaten und Grafiken © Grinding Gear Games. Kein offizielles Produkt von Grinding Gear Games.
+
+guide2pob (Mobalytics/Maxroll-Umwandlung): MIT-Lizenz, (c) 2026 Maxwell Renke, https://github.com/maxrenke/guide2pob – siehe guide2pob/LICENSE-MIT.txt

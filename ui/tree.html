@@ -1,0 +1,129 @@
+<!doctype html>
+<html lang="de">
+<head>
+<link rel="icon" href="favicon.png">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>PoE Companion · Skilltree</title>
+<link rel="stylesheet" href="app.css">
+<link rel="stylesheet" href="poe.css">
+<style>
+html,body{height:100%;background:var(--bg);overflow:hidden}
+body{display:grid;grid-template-rows:auto auto 1fr auto}
+.top{display:flex;align-items:center;gap:8px;padding:10px 12px;background:linear-gradient(180deg,#121009,#0e0c09);border-bottom:1px solid var(--line)}
+.logo{width:24px;height:24px;border-radius:7px;display:grid;place-items:center;background:linear-gradient(135deg,#d4ab6a,#7d5a2c);color:#1a1205}
+.top .t{font:600 15px var(--serif);letter-spacing:.02em;color:var(--gold2)}
+.ib2{width:28px;height:28px;border-radius:8px;display:grid;place-items:center;border:1px solid var(--line);background:transparent;color:var(--dim);cursor:pointer}
+.ib2:hover{color:var(--gold2);border-color:var(--gold)}
+.ib2.go{color:#1a1205;background:linear-gradient(135deg,#d4ab6a,#9c7238);border-color:transparent}
+.head{padding:10px 12px 8px;border-bottom:1px solid var(--line)}
+select{width:100%;background:var(--panel2);color:var(--text);border:1px solid var(--line2);border-radius:9px;padding:7px 9px;font:600 13px var(--sans)}
+.chk{display:flex;align-items:center;gap:8px;margin-top:8px;padding:8px 10px;border-radius:10px;font-size:12.5px}
+.chk.ok{background:rgba(124,196,168,.1);border:1px solid rgba(124,196,168,.35);color:#b4e7d6}
+.chk.todo{background:rgba(224,138,69,.09);border:1px solid rgba(224,138,69,.35);color:#f3caa6}
+.chk.busy{background:rgba(122,167,255,.08);border:1px solid rgba(122,167,255,.3);color:#c7d6ff}
+.chk small{margin-left:auto;color:var(--dim);font-size:11px}
+.split{display:grid;grid-template-rows:minmax(160px,46%) 1fr;min-height:0}
+.cv{position:relative;min-height:0;border-bottom:1px solid var(--line);background:#07070a}
+.cv canvas{width:100%;height:100%;display:block}
+.ttip{position:absolute;pointer-events:none;display:none;max-width:250px;background:rgba(12,11,9,.97);border:1px solid var(--line2);border-radius:10px;padding:9px 11px;font-size:12px;z-index:5;box-shadow:0 10px 30px rgba(0,0,0,.6)}
+.ttip b{font:700 13.5px var(--serif);color:var(--gold2)}
+.ttip .s{color:#8fa8ff;margin-top:4px;line-height:1.4}
+.ttip .tg{font-size:10.5px;letter-spacing:.02em;font-family:var(--serif);font-size:13px;margin-top:6px}
+.list{overflow-y:auto;padding:6px 10px 10px;min-height:0}
+.list::-webkit-scrollbar{width:6px}.list::-webkit-scrollbar-thumb{background:#2b261d;border-radius:6px}
+.lsec{font:600 10.5px var(--sans);letter-spacing:.02em;font-family:var(--serif);font-size:13px;color:var(--dim);margin:12px 2px 6px}
+.step{display:flex;align-items:center;gap:10px;padding:7px 9px;border-radius:11px;cursor:pointer;border:1px solid transparent}
+.rf-ctl{display:flex;align-items:center;gap:5px;flex-wrap:wrap;margin:0 2px 6px}.rf-ctl input[type=range]{flex:1;min-width:70px;accent-color:#e9c56a}.rf-lv{font-size:11px;color:var(--text2)}.rf-lv b{color:#ffe2a0}
+.rf-ctl button{font:600 11px var(--sans);padding:3px 8px;border-radius:6px;border:1px solid #3a3124;background:#1a1610;color:#ecd39d;cursor:pointer}.rf-ctl button.primary{background:#c99d55;color:#120f0a}
+.rf-q{font-weight:500;color:var(--dim);font-size:11px;margin-left:6px}.rf-hint{font-size:11.5px;color:var(--text2);margin:0 2px 6px;line-height:1.4}.rf-w{color:#8fe0a0;font-weight:700}.step.rf-alt{opacity:.55}
+.step:hover{background:var(--panel2);border-color:var(--line)}
+.step.first{background:linear-gradient(90deg,rgba(240,160,80,.1),transparent);border-color:rgba(240,160,80,.3)}
+.num{flex:none;width:22px;height:22px;border-radius:7px;display:grid;place-items:center;font:700 11px var(--sans);background:#1b1813;color:var(--text2)}
+.first .num{background:#f0a050;color:#1f1206}
+.rm .num{background:rgba(239,90,76,.2);color:#ff9d91}
+.sico{flex:none;width:36px;height:36px;border-radius:50%;background-repeat:no-repeat;box-shadow:0 0 0 2px #2a251c inset}
+.sst{min-width:0;flex:1}
+.sst .n{font:700 13px var(--serif);color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.rm .sst .n{color:#ffaca2}
+.sst .d{font-size:11.5px;color:var(--dim);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pts{font:700 12px var(--sans);color:var(--good)}.rm .pts{color:var(--bad)}
+.foot{padding:6px 12px 8px;font-size:11px;color:var(--dim2);border-top:1px solid var(--line);display:flex;gap:10px}
+.done{text-align:center;color:#b4e7d6;padding:28px 10px;font-weight:600}
+.top{cursor:move;user-select:none;background:linear-gradient(180deg,#1b1712,#110e0b)!important;border-bottom:1px solid rgba(195,154,91,.45)!important;box-shadow:0 1px 0 rgba(0,0,0,.6)}
+html{border:1px solid rgba(195,154,91,.35);box-sizing:border-box}
+</style>
+</head>
+<body>
+<div class="top" data-drag title="Zum Verschieben ziehen"><div class="logo"></div><div class="t">Skilltree</div><div style="flex:1"></div>
+  <button class="ib2 go" id="rf" title="Aktualisieren – prüft, ob alles richtig geskillt ist"></button>
+  <button class="ib2" id="fc" title="Nächste Punkte zeigen"></button>
+  <button class="ib2" id="hub" title="Hub öffnen (F9)"></button>
+  <button class="ib2" id="cl" title="Ausblenden (F10)"></button></div>
+<div class="head" id="head"></div>
+<div class="split"><div class="cv"><canvas id="cv"></canvas><div class="ttip" id="tip"></div></div><div class="list" id="list"></div></div>
+<div class="foot"><span>Mausrad: Zoom · Ziehen: Verschieben</span><span style="margin-left:auto">F10 ein/aus</span></div>
+<script src="data/tree_3_29.js"></script>
+<script src="core.js"></script>
+<script src="data/i18n_en.js"></script>
+<script src="i18n.js"></script>
+<script>App.overlay('tree');</script>
+<script src="treeview.js"></script>
+<script src="data/asc_3_29.js"></script>
+<script src="data/tree_poe2.js"></script>
+<script src="asc.js"></script>
+<script>
+const { icon, esc, api, zeit } = App, $ = id => document.getElementById(id);
+document.querySelector('.logo').innerHTML = icon('tree', 14);
+$('rf').innerHTML = icon('refresh', 15); $('fc').innerHTML = icon('eye', 15); $('hub').innerHTML = icon('home', 15); $('cl').innerHTML = icon('x', 15);
+const tv = new TreeView($('cv'), $('tip'));
+let S = null, stage = null, lastT = null, checking = false;
+$('fc').onclick = () => tv.focusNext();
+$('hub').onclick = () => api('/api/window', { name: 'hub', action: 'open' });
+$('cl').onclick = () => api('/api/window', { name: 'tree', action: 'hide' });
+$('rf').onclick = () => { checking = true; render(); api('/api/refresh', {}); };
+
+function cur() { const t = S.tree; const s = stage ?? S.settings.treeStage; return (s != null && s < t.plans.length) ? s : t.sel; }
+
+function render() {
+  if (!S) return;
+  const t = S.tree;
+  if (!t) {
+    $('head').innerHTML = `<div class="muted" style="font-size:13px">${S.status.busy ? esc(S.status.text) : 'Kein Guide im aktiven Profil. Im Hub unter „Profile“ einen pobb.in-Link eintragen.'}</div>`;
+    $('list').innerHTML = ''; tv.setPlan(null, 0); return;
+  }
+  const si = cur(), p = t.plans[si];
+  if (lastT !== t.t) { checking = false; }
+  const first = lastT === null || lastT !== t.t;
+  tv.setPlan(t, si); if (first) setTimeout(() => tv.focusNext(), 40);
+  lastT = t.t;
+  const fehlt = p.steps.flat().length, falsch = p.remove.length, mo = p.mast.filter(m => !m.hat).length;
+  const chk = checking || (S.status.busy && S.status.ready) ? `<div class="chk busy"><span class="spin">${icon('refresh', 14)}</span> Lade Charakter …</div>`
+    : (!fehlt && !falsch && !mo) ? `<div class="chk ok">${icon('check', 15)} Alles richtig geskillt<small>${zeit(t.t)}</small></div>`
+    : `<div class="chk todo">${icon('warn', 15)} ${[fehlt && fehlt + ' fehlen', falsch && falsch + ' falsch', mo && mo + ' Mastery'].filter(Boolean).join(' · ')}<small>${zeit(t.t)}</small></div>`;
+  $('head').innerHTML = `<select id="sel">${t.plans.map((q, i) => `<option value="${i}"${i === si ? ' selected' : ''}>${esc(q.title)}</option>`).join('')}</select>${chk}${Asc.line(t, si)}`;
+  $('sel').onchange = e => { stage = +e.target.value; api('/api/settings', { treeStage: stage }); lastT = null; render(); };
+  const L = $('list'); L.innerHTML = '';
+  if (!fehlt && !falsch && !mo) L.innerHTML = `<div class="done">${icon('check', 26)}<div>Stufe komplett – oben die nächste wählen.</div></div>`;
+  const add = (cls, num, id, sheet, key, title, desc, pts, ids) => {
+    const n = TREE.nodes[id]; if (!n) return;
+    const d = document.createElement('div'); d.className = 'step ' + cls;
+    d.innerHTML = `<div class="num">${num}</div><div class="sico"></div><div class="sst"><div class="n">${esc(title)}</div><div class="d">${esc(desc)}</div></div>${pts ? `<div class="pts">${pts}</div>` : ''}`;
+    tv.cssIcon(d.querySelector('.sico'), sheet, key, 36);
+    d.onclick = () => tv.fitTo(ids, 450, .5);
+    d.onmouseenter = () => { tv.hover = id; tv.dirty = true; }; d.onmouseleave = () => { tv.hover = null; tv.dirty = true; };
+    L.appendChild(d);
+  };
+  if (p.steps.length) L.insertAdjacentHTML('beforeend', '<div class="lsec">Nächste Schritte</div>');
+  p.steps.forEach((s, i) => { const id = s[s.length - 1], n = TREE.nodes[id]; add(i ? '' : 'first', i + 1, id, tv.iconSheet(id), n.ic, n.n, (n.st || []).join(' · '), '+' + s.length, s); });
+  const ms = p.mast.filter(m => !m.hat);
+  if (ms.length) L.insertAdjacentHTML('beforeend', '<div class="lsec">Masteries</div>');
+  ms.forEach(m => { const n = TREE.nodes[m.node]; if (n) add('', 'M', m.node, 'masteryActiveSelected', n.aa, n.n, ((n.me && n.me[m.effect]) || []).join(' · '), '', [m.node]); });
+  if (p.remove.length) L.insertAdjacentHTML('beforeend', '<div class="lsec">Umskillen</div>');
+  p.remove.forEach(id => { const n = TREE.nodes[id]; if (n) add('rm', '−', id, tv.iconSheet(id, false), n.ic, n.n, (n.st || []).join(' · '), '−1', [id]); });
+  tv.zeigeReihenfolge(L, t);
+}
+App.on(s => { if (s) App.applyScale(s); if (!s) return; S = s; render(); }); App.start();
+</script>
+</body>
+</html>

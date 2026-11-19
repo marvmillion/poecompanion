@@ -1,0 +1,11 @@
+name = "poe-companion"
+main = "worker.js"
+compatibility_date = "2025-01-01"
+
+# Nach "npx wrangler kv namespace create PC" die ausgegebene id hier eintragen
+[[kv_namespaces]]
+binding = "PC"
+id = "HIER_KV_ID_EINTRAGEN"
+
+[vars]
+REPO = ""   # z. B. "deinname/poe-companion" – für die Download-Zahlen im Dashboard

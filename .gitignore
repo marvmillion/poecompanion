@@ -1,0 +1,19 @@
+# persönliche Daten und Downloads – nie hochladen
+data/
+PathOfBuilding*/
+pob_runtime/
+update/
+_pob_*.zip
+crash.log
+version.txt
+__pycache__/
+*.pyc
+build/
+dist/
+*.spec
+# nur für die Entwicklung
+selbsttest2.py
+dump_fixtures.py
+probe_*.txt
+fixtures.json
+worker/.wrangler/

@@ -1,0 +1,95 @@
+<!doctype html>
+<html lang="de">
+<head>
+<link rel="icon" href="favicon.png">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>PoE Companion · Item-Check</title>
+<link rel="stylesheet" href="app.css">
+<link rel="stylesheet" href="result.css">
+<link rel="stylesheet" href="poe.css">
+<style>
+html,body{background:var(--bg)}
+body{overflow-y:auto}
+.top{position:sticky;top:0;z-index:5;display:flex;align-items:center;gap:10px;padding:12px 16px;background:linear-gradient(180deg,#121009 0%,rgba(18,16,9,.94) 100%);border-bottom:1px solid var(--line);backdrop-filter:blur(6px)}
+.logo{width:26px;height:26px;display:grid;place-items:center;filter:drop-shadow(0 0 8px rgba(212,165,72,.3))}
+.top .t{font:600 15px var(--serif);letter-spacing:.02em;color:var(--gold2)}
+.top .c{font-size:11.5px;color:var(--dim);margin-left:auto;text-align:right;max-width:200px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ib2{width:28px;height:28px;border-radius:8px;display:grid;place-items:center;border:1px solid var(--line);background:transparent;color:var(--dim);cursor:pointer}
+.ib2:hover{color:var(--gold2);border-color:var(--gold)}
+.ib2.on{color:#1a1106;background:var(--gold);border-color:var(--gold2)}
+main{padding:16px}
+.wait{display:flex;flex-direction:column;align-items:center;gap:14px;padding:40px 10px;color:var(--dim);text-align:center}
+.wait .big{width:74px;height:74px;border-radius:20px;display:grid;place-items:center;background:var(--panel2);border:1px solid var(--line2);color:var(--gold2)}
+.kbd{display:inline-block;padding:2px 8px;border-radius:6px;background:#221e18;border:1px solid var(--line2);color:var(--text);font:600 12px var(--sans);box-shadow:0 2px 0 #000}
+.base{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:16px;width:100%}
+.base div{background:var(--panel2);border:1px solid var(--line);border-radius:12px;padding:10px}
+.base b{display:block;font:700 17px var(--sans);color:var(--text)}
+.base span{font-size:11px;color:var(--dim)}
+.busy{position:fixed;inset:0;background:rgba(9,8,10,.55);display:none;place-items:center;z-index:20;backdrop-filter:blur(2px)}
+.busy.on{display:grid}
+.foot{padding:8px 16px 14px;color:var(--dim2);font-size:11px;text-align:center}
+.top{cursor:move;user-select:none;background:linear-gradient(180deg,#1b1712,#110e0b)!important;border-bottom:1px solid rgba(195,154,91,.45)!important;box-shadow:0 1px 0 rgba(0,0,0,.6)}
+html{border:1px solid rgba(195,154,91,.35);box-sizing:border-box}
+</style>
+</head>
+<body>
+<div class="top" data-drag title="Zum Verschieben ziehen">
+  <div class="logo"></div><div class="t">Item-Check</div>
+  <div class="c" id="who"></div>
+  <button class="ib2" id="pin" title="Anheften – Popup bleibt offen"></button>
+  <button class="ib2" id="hub" title="Hub öffnen (F9)"></button>
+  <button class="ib2" id="close" title="Ausblenden (F8)"></button>
+</div>
+<main id="main"></main>
+<div class="foot" id="foot"></div>
+<div class="busy" id="busy"><span class="spin" style="color:var(--gold2)"></span></div>
+<script src="core.js"></script>
+<script src="data/i18n_en.js"></script>
+<script src="i18n.js"></script>
+<script>App.overlay('item');</script>
+<script src="render.js"></script>
+<script>
+const $ = id => document.getElementById(id);
+document.querySelector('.logo').innerHTML = '<img src="logo.svg" alt="" width="26" height="26">';
+$('hub').innerHTML = App.icon('home', 15); $('close').innerHTML = App.icon('x', 15);
+$('busy').firstElementChild.innerHTML = App.icon('refresh', 34);
+$('hub').onclick = () => App.api('/api/window', { name: 'hub', action: 'open' });
+$('close').onclick = () => App.api('/api/window', { name: 'item', action: 'hide' });
+let pinned = false;
+$('pin').onclick = () => App.api('/api/settings', { popupPinned: !pinned });
+let lastT = null, lastErr = '', lastP = '';
+document.addEventListener('mouseenter', () => App.api('/api/window', { name: 'item', action: 'keep' }));
+
+function warten(s) {
+  const c = s.char && s.char.sheet;
+  return `<div class="wait pop"><div class="big">${App.icon('paste', 34)}</div>
+    <div><b style="color:var(--text);font-size:15px">Bereit</b><div>Im Spiel mit der Maus über ein Item und ${App.itemKey(s)}</div>
+    <div style="margin-top:6px;font-size:12.5px">Funktioniert auch bei Maps, im Stash und auf der Trade-Seite.</div></div>
+    ${c ? `<div class="base"><div><b>${App.num(c.dps)}</b><span>DPS</span></div><div><b>${App.num(c.ehp)}</b><span>eHP</span></div><div><b>${App.num(c.life + c.es)}</b><span>Leben + ES</span></div></div>` : ''}</div>`;
+}
+
+function render(s) {
+  if (s) { App.applyScale(s); pinned = !!s.settings.popupPinned; $('pin').classList.toggle('on', pinned); $('pin').innerHTML = App.icon('pin', 15); $('pin').title = pinned ? 'Angeheftet – klicken zum Lösen' : 'Anheften – Popup bleibt offen'; }
+  if (!s) { $('main').innerHTML = `<div class="wait"><div class="big">${App.icon('x', 30)}</div><b>Dienst nicht erreichbar</b><div>PoE Companion wurde beendet.</div></div>`; return; }
+  const c = s.char && s.char.sheet, info = s.char && s.char.info;
+  $('who').innerHTML = c ? `${App.esc(info.char || '')} · Lv ${c.level}<br>${App.esc(c.skill)}` : App.esc(s.status.text);
+  $('busy').classList.toggle('on', !!s.status.busy && s.status.ready);
+  if (s.status.error && s.status.error !== lastErr) {
+    lastErr = s.status.error;
+    $('main').innerHTML = `<div class="alert bad pop">${App.icon('warn', 16)}<div><b>Hinweis</b>${App.esc(s.status.error)}</div></div>` + (s.last ? Render.any(s.last) : '');
+  } else if (s.last && (s.last.t !== lastT || JSON.stringify(s.last.price || '') !== lastP)) {
+    const neu = s.last.t !== lastT;
+    lastT = s.last.t; lastErr = s.status.error; lastP = JSON.stringify(s.last.price || '');
+    $('main').innerHTML = Render.any(s.last);
+    if (neu) window.scrollTo(0, 0);
+  } else if (!s.last && !s.status.error) {
+    $('main').innerHTML = warten(s);
+  }
+  $('foot').textContent = s.last ? `Verglichen um ${App.zeit(s.last.t)} · F8 ein/aus · F9 Hub` : 'F8 ein/aus · F9 Hub';
+  requestAnimationFrame(() => App.api('/api/window', { name: 'item', action: 'resize', height: Math.max(document.documentElement.scrollHeight, document.body.getBoundingClientRect().height) + (window.outerHeight - window.innerHeight) + 2 }).catch(() => {}));
+}
+App.on(render); App.start();
+</script>
+</body>
+</html>

@@ -1,0 +1,123 @@
+<!doctype html>
+<html lang="de">
+<head>
+<link rel="icon" href="favicon.png">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>PoE Companion · Kampagne</title>
+<link rel="stylesheet" href="app.css">
+<link rel="stylesheet" href="poe.css">
+<style>
+html{border:1px solid rgba(201,164,104,.4);box-sizing:border-box}
+html,body{height:100%;overflow:hidden;background:#100e0b}
+body{font:13px/1.4 var(--sans)}
+.top{display:flex;align-items:center;gap:6px;height:30px;padding:0 4px 0 10px;cursor:move;user-select:none;background:linear-gradient(180deg,#1c1812,#141109)!important;border-bottom:1px solid #2c261c}
+.top .t{display:flex;align-items:center;gap:7px;font:600 12px var(--sans);color:var(--gold2);white-space:nowrap}
+.top .t::before{content:'';width:7px;height:7px;transform:rotate(45deg);background:var(--gold);box-shadow:0 0 6px rgba(234,209,154,.6)}
+.top .a{font:500 11px var(--sans);color:var(--dim);white-space:nowrap}
+.kb{display:inline-flex;align-items:center;gap:4px;height:21px;padding:0 6px;border-radius:3px;border:1px solid #3a3124;background:#18140f;color:var(--text2);cursor:pointer;font:600 11px var(--sans)}
+.kb:hover{border-color:var(--gold);color:var(--gold2)}
+.kb.go{background:linear-gradient(180deg,#dcb675,#a27a3e);border-color:#efd9a7;color:#1b1206}
+.kb kbd{font:700 10px var(--sans);padding:0 4px;border-radius:2px;background:rgba(0,0,0,.25);line-height:15px}
+.kb:not(.go) kbd{background:#2a231a;color:#ecdcbc}
+.ib2{width:21px;height:21px;border-radius:3px;display:grid;place-items:center;border:0;background:transparent;color:var(--dim);cursor:pointer}
+.ib2:hover{color:var(--gold2);background:#1f1a13}
+.pbar{height:2px;background:#0a0907}.pbar i{display:block;height:100%;background:linear-gradient(90deg,#94703a,#ead19a)}
+main{padding:9px 12px 4px}
+.wg{display:flex;align-items:center;gap:8px;margin-bottom:7px;font-size:11.5px;color:var(--dim);min-width:0}
+.wa{flex:none;color:#f0a050;font:700 14px var(--sans);width:14px;text-align:center}
+.wg .z{color:#9fd3ff;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.wg .zz{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.wg>div{min-width:0;display:flex;gap:6px;align-items:baseline;flex:1}
+.now{font-size:14.5px;line-height:1.42;color:#f1e9d8;font-weight:500}
+.sub{font-size:12px;color:var(--text2);margin-top:4px;line-height:1.45}
+.sub div{padding-left:11px;position:relative}.sub div::before{content:'';position:absolute;left:1px;top:7px;width:4px;height:4px;transform:rotate(45deg);background:var(--gold3)}
+.tip{font-size:11.5px;line-height:1.35;color:#9fb8cc;margin-top:6px}.tip b{color:#9fd3ff;margin-right:4px;font-weight:600}
+.ev{margin-top:6px;font-size:11.5px;color:#b4e7d6}
+.nx{font-size:11.5px;color:var(--dim);margin-top:8px;padding-top:6px;border-top:1px solid #241f17;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.nx b{color:var(--gold);font-weight:600;margin-right:5px}
+.f{display:flex;align-items:center;gap:8px;padding:5px 12px 7px;font-size:10.5px;color:var(--dim);border-top:1px solid #1d1913;background:#0c0b09}
+.f .pp{margin-left:auto;color:var(--gold2);white-space:nowrap;padding-right:10px}
+.qtag{font-size:10px!important}
+.xp{flex:none;font:700 10.5px var(--sans);padding:1px 6px;border-radius:2px;white-space:nowrap}
+.xp.ok{color:#8fd8bc;background:rgba(124,196,168,.12)}.xp.mid{color:#f3caa6;background:rgba(224,138,69,.14)}.xp.low{color:#ffb3aa;background:rgba(224,103,90,.16)}
+#tm{font-variant-numeric:tabular-nums}
+</style>
+</head>
+<body>
+<div class="top" data-drag title="Zum Verschieben ziehen"><div class="t">Kampagne</div><span class="a" id="act"></span><div style="flex:1"></div>
+  <button class="kb" id="pv" title="Einen Schritt zurück">‹ <kbd id="kp">Shift+F4</kbd></button><button class="kb go" id="nx" title="Schritt erledigt"><kbd id="kn">F4</kbd> ›</button>
+  <button class="ib2" id="hub" title="Hub öffnen"></button><button class="ib2" id="cl" title="Ausblenden"></button></div>
+<div class="pbar"><i id="pb"></i></div>
+<main id="m"></main>
+<div class="f"><span id="keys"></span><span class="pp" id="pp"></span></div>
+<script src="core.js"></script>
+<script src="data/i18n_en.js"></script>
+<script src="i18n.js"></script>
+<script>App.overlay('quest');</script>
+<script src="data/campaign.js"></script>
+<script src="data/campaign_en.js"></script>
+<script src="data/campaign_poe2.js"></script>
+<script>I18N.kampagne();</script>
+<script src="data/arealvl.js"></script>
+<script>
+const { icon, esc, api } = App, $ = id => document.getElementById(id);
+$('hub').innerHTML = icon('home', 13); $('cl').innerHTML = icon('x', 13);
+$('hub').onclick = () => api('/api/window', { name: 'hub', action: 'open' });
+$('cl').onclick = () => api('/api/window', { name: 'quest', action: 'hide' });
+$('pv').onclick = () => api('/api/campaign', { action: 'prev' });
+$('nx').onclick = () => api('/api/campaign', { action: 'next' });
+const flat = []; CAMPAIGN.forEach(a => a.steps.forEach(s => flat.push(Object.assign({ act: a.act }, s))));
+const tag = k => k === 'pp' ? ' <span class="qtag pp">★ Passivpunkt</span>' : k === 'boss' ? ' <span class="qtag boss">Boss</span>' : k === 'trial' ? ' <span class="qtag trial">Aufstieg</span>' : '';
+const TIPS = [[/<w>/, 'Wegpunkt:', 'einmal anklicken, danach kannst du jederzeit hin.'], [/<l>/, 'Ausloggen:', 'Esc → Charakterauswahl → einloggen, du landest in der Stadt.'],
+  [/<t>/, 'Prüfung:', 'Fallen ausweichen, am Ende die Plakette anklicken.'], [/<k>/, 'Boss:', 'vorher Flaschen auffüllen.'], [/abgeben|Sprich mit/i, 'Abgabe:', 'Person mit „!“ ansprechen, Belohnung wählen.']];
+const kname = k => String(k || '').split('+').map(x => ({ CTRL: 'Strg', ALT: 'Alt', SHIFT: 'Shift' })[x] || x).join('+');
+let last = '';
+// XP-Malus wie im Spiel: außerhalb der sicheren Spanne sinkt die Erfahrung stark
+function xp(cl, al) {
+  if (!cl || !al) return null;
+  const safe = 3 + Math.floor(cl / 16), d = Math.max(0, Math.abs(cl - al) - safe);
+  return { p: Math.round(Math.pow((cl + 5) / (cl + 5 + Math.pow(d, 2.5)), 1.5) * 100), hoch: cl > al };
+}
+const uhr = s => { s = Math.max(0, Math.floor(s)); const h = Math.floor(s / 3600), m = Math.floor(s / 60) % 60; return (h ? h + ':' + String(m).padStart(2, '0') : m) + ':' + String(s % 60).padStart(2, '0'); };
+App.on(s => {
+  if (s) App.applyScale(s);
+  if (!s || !s.campaign) return;
+  const c = s.campaign, cl = c.level || (s.char && s.char.sheet && s.char.sheet.level) || 0;
+  const k = JSON.stringify([c, cl, s.settings.questHints, s.settings.hotkeyQuestNext, s.settings.hotkeyQuestPrev]); if (k === last) return; last = k;
+  const i = c.idx, cur = flat[i];
+  $('pb').style.width = (Math.min(i, flat.length) / flat.length * 100) + '%';
+  const akt = n => { const a = CAMPAIGN.find(x => x.act === +n); return (a && a.short) || 'Akt ' + n; };
+  $('act').textContent = cur ? akt(cur.act) + ' · ' + Math.round(i / flat.length * 100) + ' %' : '';
+  $('kn').textContent = App.keyShort(s.settings.hotkeyQuestNext || 'F4'); $('kp').textContent = App.keyShort(s.settings.hotkeyQuestPrev || 'SHIFT+F4');
+  const sp0 = c.splits || {}, curAct = cur ? String(cur.act) : '', start = Math.min(...Object.values(sp0).concat([Infinity]));
+  $('keys').innerHTML = (c.log ? '<span style="color:#7cc4a8" title="Spiel-Log wird mitgelesen">●</span> ' : '<span style="color:#cf4b3f">●</span> Kein Spiel-Log' + (isFinite(start) ? ' · ' : ''))
+    + (isFinite(start) ? `<span id="tm" data-a="${sp0[curAct] || ''}" data-s="${start}"></span>` : (c.log ? 'Spiel-Log aktiv' : ''))
+    + (Object.values(c.deaths || {}).reduce((a, b) => a + b, 0) ? ` · ☠ ${Object.values(c.deaths).reduce((a, b) => a + b, 0)}` : '');
+  tick();
+  if (!cur) { $('m').innerHTML = `<div class="now">${icon('check', 18)} Kampagne geschafft – ab in die Maps!</div>`; }
+  else {
+    const nx = flat.slice(i + 1, i + 2);
+    let nz = ''; for (let j = i; j < flat.length; j++) if (flat[j].z && flat[j].e) { nz = flat[j].z; break; }
+    const all = cur.t + cur.sub.join(' ');
+    const ar = (all.match(/<d>(.)<\/d>/) || [])[1] || '';
+    const tip = s.settings.questHints !== false ? TIPS.find(t => t[0].test(all)) : null;
+    const al = (window.SPIEL !== 'poe2' && window.AREALVL && AREALVL[c.zone]) ? (AREALVL[c.zone][cur.act] || Object.values(AREALVL[c.zone])[0]) : 0, x = xp(cl, al);
+    const xpb = x ? `<span class="xp ${x.p >= 90 ? 'ok' : x.p >= 60 ? 'mid' : 'low'}" title="Gebietslevel ${al}, du bist Level ${cl}">${x.p >= 99 ? 'XP voll' : 'XP ' + x.p + ' %' + (x.hoch ? ' – zu hoch, weiter!' : ' – zu niedrig')}</span>` : '';
+    $('m').innerHTML = `<div class="wg"><span class="wa">${ar || '➜'}</span><div><span class="z">${esc(c.zone || 'Warte auf Gebietswechsel')}</span><span class="zz">${nz && nz !== c.zone ? '→ ' + esc(nz) : 'hier erledigen'}${al ? ' · Lv ' + al : ''}</span></div>${xpb}</div>
+      <div class="now qs">${cur.t}${tag(cur.k)}</div>${cur.sub.length ? `<div class="sub qs">${cur.sub.map(x => `<div>${x}</div>`).join('')}</div>` : ''}
+      ${tip ? `<div class="tip"><b>${tip[1]}</b>${tip[2]}</div>` : ''}
+      ${c.last ? `<div class="ev">${icon('check', 12)} ${esc(c.last)}</div>` : ''}
+      ${nx.map((n, j) => `<div class="nx qs"><b>Danach</b>${n.t.replace(/<[^>]+>/g, '')}</div>`).join('')}`;
+  }
+  const ppAll = PASSIVE_QUESTS.reduce((a, p) => a + p[3], 0);
+  const ppHave = PASSIVE_QUESTS.filter(p => (c.pp && p[1] in c.pp) ? c.pp[p[1]] : flat.some((st, j) => st.k === 'pp' && st.q === p[1] && j < i)).reduce((a, p) => a + p[3], 0);
+  $('pp').textContent = '★ ' + ppHave + '/' + ppAll;
+  requestAnimationFrame(() => api('/api/window', { name: 'quest', action: 'resize', height: Math.ceil([...document.body.children].filter(e => e.tagName !== 'SCRIPT').reduce((a, e) => a + (e.classList.contains('rgrip') ? 0 : e.getBoundingClientRect().height), 0) + 4 + (window.outerHeight - window.innerHeight)) }).catch(() => {}));
+});
+function tick() { const t = $('tm'); if (!t) return; const n = Date.now() / 1000; t.textContent = (t.dataset.a ? 'Akt ' + uhr(n - +t.dataset.a) + ' · ' : '') + 'gesamt ' + uhr(n - +t.dataset.s); }
+setInterval(tick, 1000);
+App.start();
+</script>
+</body>
+</html>

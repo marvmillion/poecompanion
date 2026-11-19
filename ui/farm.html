@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="de">
+<head>
+<link rel="icon" href="favicon.png">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>PoE Companion · Farming</title>
+<link rel="stylesheet" href="app.css">
+<link rel="stylesheet" href="poe.css">
+<style>
+html,body{height:100%;background:var(--bg);overflow:hidden}
+.top{display:flex;align-items:center;gap:8px;padding:9px 12px;background:linear-gradient(180deg,#121009,#0e0c09);border-bottom:1px solid var(--line)}
+.logo{width:22px;height:22px;border-radius:7px;display:grid;place-items:center;background:linear-gradient(135deg,#d4ab6a,#7d5a2c);color:#1a1205}
+.top .t{font:600 15px var(--serif);letter-spacing:.02em;color:var(--gold2)}
+.ib2{width:26px;height:26px;border-radius:8px;display:grid;place-items:center;border:1px solid var(--line);background:transparent;color:var(--dim);cursor:pointer}
+.ib2:hover{color:var(--gold2);border-color:var(--gold)}
+main{padding:12px 14px}
+.row{display:flex;align-items:flex-end;justify-content:space-between}
+.time{font:700 30px/1 var(--sans);font-variant-numeric:tabular-nums;color:var(--text)}
+.lab{font:600 10px var(--sans);letter-spacing:.02em;font-family:var(--serif);font-size:13px;color:var(--dim);margin-top:5px}
+.ph{text-align:right}
+.ph b{font:800 32px/1 var(--sans);letter-spacing:-.02em}
+.good b,.good{color:var(--good)} .bad b,.bad{color:var(--bad)}
+.k{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;margin-top:12px}
+.k div{background:var(--panel2);border:1px solid var(--line);border-radius:11px;padding:8px 9px}
+.k b{display:block;font:700 15px var(--sans)}
+.k span{font-size:10.5px;color:var(--dim)}
+.f{display:flex;gap:8px;align-items:center;margin-top:11px;font-size:11.5px;color:var(--dim)}
+.f .btn{margin-left:auto}
+.live{display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--good);box-shadow:0 0 8px var(--good);margin-right:5px;animation:p 1.6s infinite}
+@keyframes p{50%{opacity:.3}}
+.cm{display:flex;align-items:center;gap:8px;margin-top:10px;padding:6px 9px;border-radius:5px;background:rgba(159,211,255,.05);border:1px solid rgba(159,211,255,.14);font-size:12.5px}
+.cm .cmn{flex:1;color:#9fd3ff;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.cm #cmt{font-variant-numeric:tabular-nums;color:var(--text2)}.cm .cmd{color:#e0675a;font-weight:700}
+.idle{text-align:center;color:var(--dim);padding:14px 4px;font-size:13px}
+.spk{display:block;width:100%;margin-top:10px;background:var(--panel2);color:var(--text);border:1px solid var(--line2);border-radius:6px;padding:6px 8px;font:600 12.5px var(--sans)}
+.top .t{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:220px}
+.top{cursor:move;user-select:none;background:linear-gradient(180deg,#1b1712,#110e0b)!important;border-bottom:1px solid rgba(195,154,91,.45)!important;box-shadow:0 1px 0 rgba(0,0,0,.6)}
+html{border:1px solid rgba(195,154,91,.35);box-sizing:border-box}
+</style>
+</head>
+<body>
+<div class="top" data-drag title="Zum Verschieben ziehen"><div class="logo"></div><div class="t" id="ttl">Farming</div><div style="flex:1"></div>
+  <button class="ib2" id="hub" title="Hub öffnen"></button><button class="ib2" id="cl" title="Ausblenden (F7)"></button></div>
+<main id="m"></main>
+<script src="core.js"></script>
+<script src="data/i18n_en.js"></script>
+<script src="i18n.js"></script>
+<script>App.overlay('farm');</script>
+<script>
+const { icon, esc, api, full } = App, $ = id => document.getElementById(id);
+document.querySelector('.logo').innerHTML = icon('coin', 13);
+$('hub').innerHTML = icon('home', 14); $('cl').innerHTML = icon('x', 14);
+$('hub').onclick = () => { api('/api/window', { name: 'hub', action: 'open' }); location.hash = ''; };
+$('cl').onclick = () => api('/api/window', { name: 'farm', action: 'hide' });
+const dv = (c, d) => { const v = c / (d || 1); return (Math.abs(v) >= 100 ? v.toFixed(0) : v.toFixed(2)).replace('.', ','); };
+const dauer = s => { s = Math.max(0, Math.floor(s)); const h = Math.floor(s / 3600), m = Math.floor(s / 60) % 60; return (h ? h + ':' + String(m).padStart(2, '0') : m) + ':' + String(s % 60).padStart(2, '0'); };
+let S = null, nextAt = 0;
+let rk = '';
+function render() {
+  const F = S && S.farm, ss = F && F.session;
+  const k = JSON.stringify([ss, F && F.status, F && F.strategies, F && F.strat, F && F.hasSessid]); if (k === rk) return; rk = k;
+  if (!ss) {
+    $('ttl').textContent = 'Farming';
+    const L = ((F && F.strategies) || []).slice().sort((a, b) => (b.fav ? 1 : 0) - (a.fav ? 1 : 0));
+    $('m').innerHTML = `<div class="idle">${icon('bolt', 26)}<div style="margin-top:6px">Keine Session aktiv.</div>
+      ${L.length ? `<select id="sp" class="spk"><option value="">Ohne Strategie</option>${L.map(x => `<option value="${x.id}"${F.strat === x.id ? ' selected' : ''}>${x.fav ? '★ ' : ''}${esc(x.name)}</option>`).join('')}</select>` : ''}
+      <button class="btn small primary" id="go" style="margin-top:10px" ${F && F.hasSessid ? '' : 'disabled'}>${icon('bolt', 14)} Session starten</button>${F && !F.hasSessid ? '<div style="margin-top:8px;font-size:11.5px">Erst im Hub die POESESSID eintragen.</div>' : ''}</div>`;
+    const g = $('go'); if (g) g.onclick = () => api('/api/stash/action', { action: 'start' });
+    const sp = $('sp'); if (sp) sp.onchange = () => api('/api/strategy', { action: 'pick', id: sp.value });
+    resize();
+    return;
+  }
+  const d = ss.divine || F.divine, mp = ss.maps || {}, n = mp.count || 0;
+  const strat = ss.strat && (F.strategies || []).find(x => x.id === ss.strat);
+  $('ttl').textContent = ss.mode === 'craft' ? 'Handel & Crafting' : strat ? strat.name : 'Farming';
+  nextAt = Date.now() / 1000 + (ss.nextTick || 0);
+  $('m').innerHTML = `<div class="row"><div><div class="time" id="t" data-t0="${ss.t0}" data-end="${ss.tEnd || ''}">${dauer((ss.tEnd || Date.now() / 1000) - ss.t0)}</div><div class="lab">${ss.active ? '<span class="live"></span>läuft' : 'beendet'}</div></div>
+    <div class="ph ${ss.perHour >= 0 ? 'good' : 'bad'}"><b>${ss.perHour >= 0 ? '+' : ''}${dv(ss.perHour, d)}</b><div class="lab">Divine / Stunde</div></div></div>
+    <div class="k"><div><b class="${ss.profit >= 0 ? 'good' : 'bad'}">${ss.profit >= 0 ? '+' : ''}${dv(ss.profit, d)}</b><span>Gewinn div</span></div>
+      <div><b class="bad">−${dv(ss.spent, d)}</b><span>${ss.mode === 'craft' ? 'Eingesetzt' : 'Ausgaben'} div</span></div>
+      ${ss.mode === 'craft' ? `<div><b class="${ss.profit >= 0 ? 'good' : 'bad'}">${ss.spent ? Math.round(ss.profit / ss.spent * 100) + ' %' : '–'}</b><span>Rendite</span></div>` : `<div><b>${n}</b><span>Maps${mp.avg ? ', Ø ' + dauer(mp.avg) : ''}</span></div>`}</div>
+    ${mp.cur && ss.active ? `<div class="cm"><span class="cmn">${esc(mp.cur.n)}</span><span id="cmt" data-t0="${mp.cur.t0}"></span>${mp.cur.d ? `<span class="cmd">☠ ${mp.cur.d}</span>` : ''}</div>` : ''}
+    <div class="f">${F.status.busy ? '<span class="spin">' + icon('refresh', 13) + '</span> rechne…' : ss.active ? '<span id="nx"></span>' : ''}
+      ${ss.active ? `<button class="btn small" id="tk" ${F.status.busy ? 'disabled' : ''}>${icon('refresh', 13)}</button>` : ''}</div>`;
+  const tk = $('tk'); if (tk) tk.onclick = () => api('/api/stash/action', { action: 'tick' });
+  resize();
+}
+function resize() {
+  requestAnimationFrame(() => api('/api/window', { name: 'farm', action: 'resize', height: [...document.body.children].filter(e => e.tagName !== 'SCRIPT').reduce((a, e) => a + (e.classList.contains('rgrip') ? 0 : e.getBoundingClientRect().height), 0) + (window.outerHeight - window.innerHeight) + 2 }).catch(() => {}));
+}
+setInterval(() => {
+  const t = $('t'); if (t && !t.dataset.end) t.textContent = dauer(Date.now() / 1000 - +t.dataset.t0);
+  const cm = $('cmt'); if (cm) cm.textContent = dauer(Date.now() / 1000 - +cm.dataset.t0);
+  const nx = $('nx'); if (nx) { const r = nextAt - Date.now() / 1000; nx.textContent = r > 0 ? 'Abrechnung in ' + dauer(r) : 'gleich…'; }
+}, 1000);
+App.on(s => { if (s) App.applyScale(s); if (!s) return; S = s; render(); }); App.start();
+</script>
+</body>
+</html>
