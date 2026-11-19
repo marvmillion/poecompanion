@@ -1,4 +1,5 @@
 """Updates (GitHub), anonymer Nutzerzähler und Feedback (eigener Cloudflare Worker).
+poecompanion.marvinludwig911.workers.dev
 
 Datenschutz: Der Zähler schickt höchstens einmal am Tag eine zufällige Installations-Nummer, die Programmversion,
 das Spiel (PoE 1/2) und die Sprache. Keine Namen, keine Accounts, keine Dateien. In den Einstellungen abschaltbar."""
